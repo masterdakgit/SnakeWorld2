@@ -54,10 +54,16 @@ func setDir() {
 
 	dir[3].dx = 0
 	dir[3].dy = 1
+
 }
 
 func (w *World) Generation() {
 	for n := range w.snake {
 		w.snake[n].move(w)
+		w.snake[n].energe--
+		if w.snake[n].energe < 1 {
+			w.snake[n].eatSomeself(w)
+			w.snake[n].energe = energeCell
+		}
 	}
 }

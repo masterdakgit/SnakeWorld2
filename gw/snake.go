@@ -17,6 +17,7 @@ type snake struct {
 	num    int
 	way    int
 	energe int
+	dead   bool
 }
 
 type cell struct {
@@ -62,7 +63,9 @@ func (w *World) addSnake() {
 
 func (s *snake) move(w *World) {
 	s.randomWay(w)
-	s.step(w)
+	if !s.dead {
+		s.step(w)
+	}
 }
 
 func (s *snake) randomWay(w *World) {
@@ -77,7 +80,7 @@ func (s *snake) randomWay(w *World) {
 
 		x := s.cell[0].x + dir[way].dx
 		y := s.cell[0].y + dir[way].dy
-		if w.field[x][y] >= 0 {
+		if w.field[x][y] >= 0 && w.field[x][y] < 1000 {
 			s.way = way
 			break
 		}
@@ -89,6 +92,10 @@ func (s *snake) randomWay(w *World) {
 func (s *snake) step(w *World) {
 	x := s.cell[0].x + dir[s.way].dx
 	y := s.cell[0].y + dir[s.way].dy
+
+	if w.field[x][y] == 1 {
+		s.eat(w)
+	}
 
 	nLast := len(s.cell) - 1
 	w.field[s.cell[nLast].x][s.cell[nLast].y] = 0
@@ -103,5 +110,31 @@ func (s *snake) step(w *World) {
 }
 
 func (s *snake) die(w *World) {
+	s.cell = s.cell[:startLength]
+
+	for n := range s.cell {
+		s.cell[n].x = s.cell[0].x
+		s.cell[n].y = s.cell[0].y
+	}
+}
+
+func (s *snake) eat(w *World) {
+	var c cell
+	nLast := len(s.cell) - 1
+	c.x = s.cell[nLast].x
+	c.y = s.cell[nLast].y
+	s.cell = append(s.cell, c)
+}
+
+func (s *snake) eatSomeself(w *World) {
+	nLast := len(s.cell) - 1
+
+	if nLast < 2 {
+		s.die(w)
+		return
+	}
+
+	w.field[s.cell[nLast].x][s.cell[nLast].y] = 0
+	s.cell = s.cell[:nLast]
 
 }
