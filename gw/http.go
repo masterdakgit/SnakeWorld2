@@ -13,18 +13,33 @@ var (
 	mutex sync.Mutex
 )
 
-func setKey(w http.ResponseWriter, r *http.Request) {
+func (w *World) setKey(rw http.ResponseWriter, r *http.Request) {
 	key := r.FormValue("key")
-	id := r.FormValue("id")
+	//id := r.FormValue("id")
 
-	fmt.Println(key, id)
-
+	//fmt.Println(key)
 	switch key {
-	case "ArrowUp":
-	case "ArrowDown":
-	case "ArrowLeft":
-	case "ArrowRight":
+	case "-":
+		w.Speed *= 2
+	case " ":
+		w.Speed /= 2
+	case "*":
+		w.balance = int(float64(w.balance) * 1.1)
+	case "/":
+		w.balance = int(float64(w.balance) / 1.1)
 	}
+
+	if w.Speed < 1 {
+		w.Speed = 1
+	}
+	if w.Speed > 1000 {
+		w.Speed = 1000
+	}
+
+	fmt.Println("Geneartion:", w.Gen)
+	fmt.Println("Speed:", w.Speed)
+	fmt.Println("Balance:", w.balance)
+
 }
 
 func loadHTML(w http.ResponseWriter, r *http.Request) {
@@ -43,7 +58,7 @@ func (w *World) loadPict(rw http.ResponseWriter, r *http.Request) {
 
 func (w *World) ListenHTTP(port int) {
 	http.HandleFunc("/pict/", w.loadPict)
-	http.HandleFunc("/key/", setKey)
+	http.HandleFunc("/key/", w.setKey)
 	http.HandleFunc("/", loadHTML)
 	err := http.ListenAndServe(":"+strconv.Itoa(port), nil)
 	if err != nil {

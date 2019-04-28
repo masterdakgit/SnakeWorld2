@@ -1,8 +1,8 @@
 package gw
 
 import (
+	"fmt"
 	"image"
-	"log"
 	"math/rand"
 	"sync"
 )
@@ -18,13 +18,15 @@ type World struct {
 	lenX, lenY int
 	balance    int
 	image      *image.NRGBA
+	Gen        int
+	Speed      float64
 }
 
 type direction struct {
 	dx, dy int
 }
 
-func (w *World) Create(x, y, nEat, nSnake int) {
+func (w *World) Create(x, y, nEat, nSnake, rWall int) {
 	w.field = make([][]int, x)
 	for n := range w.field {
 		w.field[n] = make([]int, y)
@@ -32,10 +34,12 @@ func (w *World) Create(x, y, nEat, nSnake int) {
 	w.lenX = x
 	w.lenY = y
 	w.setWall()
+	w.addRanomWall(rWall)
+	w.Speed = 100
 
 	setDir()
 
-	w.balance = nEat + nSnake*startLength
+	w.balance = nEat
 
 	w.snake = make([]snake, 0)
 	w.addEat(nEat)
@@ -56,6 +60,25 @@ func (w *World) setWall() {
 	for y := range w.field[0] {
 		w.field[0][y] = -1
 		w.field[w.lenX-1][y] = -1
+	}
+}
+
+func (w *World) addRanomWall(n int) {
+	r := 0
+	f := 0
+	for {
+		if r >= n || f > 1000 {
+			break
+		}
+		x := 1 + rand.Intn(w.lenX-3)
+		y := 1 + rand.Intn(w.lenY-2)
+
+		if w.field[x][y] == 0 {
+			w.field[x][y] = -1
+			r++
+		} else {
+			f++
+		}
 	}
 }
 
@@ -89,7 +112,7 @@ func (w *World) Generation() {
 	}
 
 	w.setBalanceEat()
-
+	w.Gen++
 	mutex2.Unlock()
 }
 
@@ -125,7 +148,8 @@ func (w *World) delEat(n int) {
 			break
 		}
 		if f > w.lenX*w.lenY {
-			log.Fatal("Невозможно удалить еду.")
+			fmt.Println("Еды нет.")
+			break
 		}
 		if w.field[x%w.lenX][y%w.lenY] == 1 {
 			w.field[x%w.lenX][y%w.lenY] = 0
