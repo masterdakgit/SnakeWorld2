@@ -16,6 +16,7 @@ type World struct {
 	field      [][]int
 	snake      []snake
 	lenX, lenY int
+	balance    int
 	image      *image.NRGBA
 }
 
@@ -33,6 +34,8 @@ func (w *World) Create(x, y, nEat, nSnake int) {
 	w.setWall()
 
 	setDir()
+
+	w.balance = nEat + nSnake*startLength
 
 	w.snake = make([]snake, 0)
 	w.addEat(nEat)
@@ -73,14 +76,17 @@ func setDir() {
 
 func (w *World) Generation() {
 	mutex2.Lock()
+
 	for n := range w.snake {
 		w.snake[n].move(w)
 		w.snake[n].energe--
 		if w.snake[n].energe < 1 {
 			w.snake[n].eatSomeself(w)
-			w.snake[n].energe = energeCell
 		}
 	}
+
+	w.setBalanceEat()
+
 	mutex2.Unlock()
 }
 
@@ -127,5 +133,31 @@ func (w *World) delEat(n int) {
 			y = sy + x/w.lenX
 			f++
 		}
+	}
+}
+
+func (w *World) calcCell() int {
+	result := 0
+	for x := range w.field {
+		for y := range w.field[0] {
+			if w.field[x][y] == 1 {
+				result++
+			}
+		}
+	}
+
+	for n := range w.snake {
+		result += len(w.snake[n].cell)
+	}
+	return result
+}
+
+func (w *World) setBalanceEat() {
+	n := w.balance - w.calcCell()
+
+	if n > 0 {
+		w.addEat(n)
+	} else {
+		w.delEat(w.calcCell() - w.balance)
 	}
 }

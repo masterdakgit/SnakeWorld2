@@ -18,7 +18,6 @@ type snake struct {
 	num      int
 	way      int
 	energe   int
-	dead     bool
 	neuroNet nr.NeuroNet
 }
 
@@ -42,6 +41,7 @@ func (w *World) findEmptyXY() (x, y int) {
 		y = (y + 1) % w.lenY
 		r++
 	}
+
 	return
 }
 
@@ -73,9 +73,7 @@ func (w *World) addSnake() {
 
 func (s *snake) move(w *World) {
 	s.randomWay(w)
-	if !s.dead {
-		s.step(w)
-	}
+	s.step(w)
 }
 
 func (s *snake) randomWay(w *World) {
@@ -90,6 +88,11 @@ func (s *snake) randomWay(w *World) {
 
 		x := s.cell[0].x + dir[way].dx
 		y := s.cell[0].y + dir[way].dy
+
+		if x < 0 || y < 0 || x == w.lenX || y == w.lenY {
+			log.Fatal("randomWay: ", x, y)
+		}
+
 		if w.field[x][y] >= 0 && w.field[x][y] < 1000 {
 			s.way = way
 			break
@@ -102,6 +105,10 @@ func (s *snake) randomWay(w *World) {
 func (s *snake) step(w *World) {
 	x := s.cell[0].x + dir[s.way].dx
 	y := s.cell[0].y + dir[s.way].dy
+
+	if w.field[x][y] == -1 || w.field[x][y] >= 1000 {
+		return
+	}
 
 	if w.field[x][y] == 1 {
 		s.eat(w)
@@ -120,15 +127,13 @@ func (s *snake) step(w *World) {
 }
 
 func (s *snake) die(w *World) {
+
 	for n := range s.cell {
 		w.field[s.cell[n].x][s.cell[n].y] = 1
 	}
 
-	w.delEat(startLength - len(s.cell))
 	s.cell = s.cell[:startLength]
-
 	x, y := w.findEmptyXY()
-
 	for n := range s.cell {
 		s.cell[n].x = x
 		s.cell[n].y = y
@@ -145,7 +150,6 @@ func (s *snake) eat(w *World) {
 
 func (s *snake) eatSomeself(w *World) {
 	nLast := len(s.cell) - 1
-	w.addEat(1)
 
 	if nLast < 1 {
 		s.die(w)
@@ -154,4 +158,6 @@ func (s *snake) eatSomeself(w *World) {
 
 	w.field[s.cell[nLast].x][s.cell[nLast].y] = 0
 	s.cell = s.cell[:nLast]
+
+	s.energe = energeCell
 }

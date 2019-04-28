@@ -8,11 +8,11 @@ import (
 var w gw.World
 
 func main() {
-	w.Create(80, 60, 1000, 1)
+	w.Create(80, 60, 1000, 10)
 	go func() {
 		for {
 			w.Generation()
-			time.Sleep(100 * 1000000)
+			time.Sleep(1 * 1000000)
 		}
 	}()
 	w.ListenHTTP(8080)
