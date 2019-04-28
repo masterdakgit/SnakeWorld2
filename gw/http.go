@@ -33,7 +33,8 @@ func loadHTML(w http.ResponseWriter, r *http.Request) {
 
 func (w *World) loadPict(rw http.ResponseWriter, r *http.Request) {
 	mutex.Lock()
-	err := png.Encode(rw, w.img())
+	w.imgChange()
+	err := png.Encode(rw, w.image)
 	if err != nil {
 		log.Fatal("loadPict:", err)
 	}

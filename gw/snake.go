@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	startLength = 4
+	startLength = 1
 	energeCell  = 20
 )
 
@@ -26,13 +26,9 @@ type cell struct {
 	x, y int
 }
 
-func (w *World) addSnake() {
-	var s snake
-	s.cell = make([]cell, startLength)
-	s.energe = energeCell
-
-	x := 1 + rand.Intn(w.lenX-3)
-	y := 1 + rand.Intn(w.lenY-2)
+func (w *World) findEmptyXY() (x, y int) {
+	x = 1 + rand.Intn(w.lenX-3)
+	y = 1 + rand.Intn(w.lenY-2)
 	r := 0
 
 	for {
@@ -40,15 +36,25 @@ func (w *World) addSnake() {
 			log.Fatal("addSnake: Нет места для новой змейки.")
 		}
 		if w.field[x][y] == 0 {
-			for n := range s.cell {
-				s.cell[n].x = x
-				s.cell[n].y = y
-			}
 			break
 		}
 		x = (x + 1) % w.lenX
 		y = (y + 1) % w.lenY
 		r++
+	}
+	return
+}
+
+func (w *World) addSnake() {
+	var s snake
+	s.cell = make([]cell, startLength)
+	s.energe = energeCell
+
+	x, y := w.findEmptyXY()
+
+	for n := range s.cell {
+		s.cell[n].x = x
+		s.cell[n].y = y
 	}
 
 	num := len(w.snake) + 1000
@@ -114,13 +120,18 @@ func (s *snake) step(w *World) {
 }
 
 func (s *snake) die(w *World) {
-	w.delEat(startLength - len(s.cell) + 1)
+	for n := range s.cell {
+		w.field[s.cell[n].x][s.cell[n].y] = 1
+	}
 
+	w.delEat(startLength - len(s.cell))
 	s.cell = s.cell[:startLength]
 
+	x, y := w.findEmptyXY()
+
 	for n := range s.cell {
-		s.cell[n].x = s.cell[0].x
-		s.cell[n].y = s.cell[0].y
+		s.cell[n].x = x
+		s.cell[n].y = y
 	}
 }
 

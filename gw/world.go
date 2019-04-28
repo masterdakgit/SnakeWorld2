@@ -1,18 +1,22 @@
 package gw
 
 import (
+	"image"
 	"log"
 	"math/rand"
+	"sync"
 )
 
 var (
-	dir [4]direction
+	dir    [4]direction
+	mutex2 sync.Mutex
 )
 
 type World struct {
 	field      [][]int
 	snake      []snake
 	lenX, lenY int
+	image      *image.NRGBA
 }
 
 type direction struct {
@@ -36,6 +40,9 @@ func (w *World) Create(x, y, nEat, nSnake int) {
 	for n := 0; n < nSnake; n++ {
 		w.addSnake()
 	}
+
+	w.image = image.NewNRGBA(image.Rect(0, 0, bar*w.lenX+1, bar*w.lenY+1))
+	w.imgChange()
 }
 
 func (w *World) setWall() {
@@ -65,6 +72,7 @@ func setDir() {
 }
 
 func (w *World) Generation() {
+	mutex2.Lock()
 	for n := range w.snake {
 		w.snake[n].move(w)
 		w.snake[n].energe--
@@ -73,6 +81,7 @@ func (w *World) Generation() {
 			w.snake[n].energe = energeCell
 		}
 	}
+	mutex2.Unlock()
 }
 
 func (w *World) addEat(n int) {

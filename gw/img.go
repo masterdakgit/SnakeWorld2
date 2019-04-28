@@ -30,32 +30,25 @@ func (w *World) setSnake(i *image.NRGBA) {
 		for c := range w.snake[n].cell {
 			x := w.snake[n].cell[c].x
 			y := w.snake[n].cell[c].y
-			if c == 0 {
-				setBar(x, y, colorHead, i)
-			} else {
-				setBar(x, y, w.snake[n].color, i)
-			}
-
+			setBar(x, y, w.snake[n].color, i)
 		}
+		setBar(w.snake[n].cell[0].x, w.snake[n].cell[0].y, colorHead, i)
 	}
 }
 
-func (w *World) img() *image.NRGBA {
-	i := image.NewNRGBA(image.Rect(0, 0, bar*w.lenX+1, bar*w.lenY+1))
+func (w *World) imgChange() {
 	for x := 0; x < w.lenX; x++ {
 		for y := 0; y < w.lenY; y++ {
 			switch w.field[x][y] {
 			case 0:
-				setBar(x, y, colorEmpty, i)
+				setBar(x, y, colorEmpty, w.image)
 			case -1:
-				setBar(x, y, colorWall, i)
+				setBar(x, y, colorWall, w.image)
 			case 1:
-				setBar(x, y, colorEat, i)
+				setBar(x, y, colorEat, w.image)
 			}
 		}
 	}
 
-	w.setSnake(i)
-
-	return i
+	w.setSnake(w.image)
 }
