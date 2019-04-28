@@ -145,7 +145,6 @@ func (w *World) calcCell() int {
 			}
 		}
 	}
-
 	for n := range w.snake {
 		result += len(w.snake[n].cell)
 	}

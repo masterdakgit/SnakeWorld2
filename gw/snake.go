@@ -138,6 +138,7 @@ func (s *snake) die(w *World) {
 		s.cell[n].x = x
 		s.cell[n].y = y
 	}
+	s.energe = energeCell
 }
 
 func (s *snake) eat(w *World) {
