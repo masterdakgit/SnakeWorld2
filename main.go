@@ -13,7 +13,7 @@ func main() {
 	go func() {
 		for {
 			w.Generation()
-			time.Sleep(10000 * 1000000)
+			time.Sleep(100 * 1000000)
 			fmt.Println(w.LiveDaedAll())
 		}
 	}()
