@@ -10,7 +10,7 @@ var (
 	colorEmpty     = color.RGBA{255, 255, 255, 255}
 	colorGreed     = color.RGBA{220, 220, 220, 255}
 	colorHead      = color.RGBA{0, 0, 0, 255}
-	colorWall      = color.RGBA{0, 0, 0, 255}
+	colorWall      = color.RGBA{170, 170, 170, 255}
 	colorEat       = color.RGBA{0, 170, 0, 255}
 	colorAid       = color.RGBA{0, 0, 255, 255}
 )

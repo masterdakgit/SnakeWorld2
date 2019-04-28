@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	dir    [5]direction
+	dir    [dirWay]direction
 	mutex2 sync.Mutex
 )
 

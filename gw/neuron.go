@@ -7,7 +7,7 @@ const (
 )
 
 var (
-	layer = []int{viewLen * viewLen, 20, dirWay}
+	layer = []int{viewLen * viewLen, 10, dirWay}
 )
 
 func (s *snake) neuroNetCreate() {
