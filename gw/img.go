@@ -12,6 +12,7 @@ var (
 	colorHead      = color.RGBA{0, 0, 0, 255}
 	colorWall      = color.RGBA{0, 0, 0, 255}
 	colorEat       = color.RGBA{0, 170, 0, 255}
+	colorAid       = color.RGBA{0, 0, 255, 255}
 )
 
 func setBar(x, y int, c color.RGBA, i *image.NRGBA) {
@@ -51,6 +52,8 @@ func (w *World) imgChange() {
 				setBar(x, y, colorWall, w.image)
 			case 1:
 				setBar(x, y, colorEat, w.image)
+			case 2:
+				setBar(x, y, colorAid, w.image)
 			}
 		}
 	}
