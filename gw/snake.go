@@ -75,7 +75,9 @@ func (w *World) addSnake() {
 }
 
 func (s *snake) move(w *World) {
-	s.randomWay(w)
+	//s.randomWay(w)
+	s.way = s.neuroWay(w)
+
 	if !s.dead {
 		s.step(w)
 	}
@@ -87,7 +89,7 @@ func (s *snake) randomWay(w *World) {
 
 	for {
 		if d > 3 {
-			s.die(w)
+			//s.die(w)
 			break
 		}
 
@@ -112,11 +114,15 @@ func (s *snake) step(w *World) {
 	y := s.cell[0].y + dir[s.way].dy
 
 	if w.field[x][y] == -1 || w.field[x][y] >= 1000 {
+		s.neuroBad(w)
 		return
 	}
 
 	if w.field[x][y] == 1 {
 		s.eat(w)
+		s.neuroGood(w)
+	} else {
+		s.neuroWeak(w)
 	}
 
 	nLast := len(s.cell) - 1
@@ -131,11 +137,9 @@ func (s *snake) step(w *World) {
 	w.field[x][y] = s.num
 
 	w.field[s.cell[nLast].x][s.cell[nLast].y] = s.num
-
 }
 
 func (s *snake) die(w *World) {
-
 	for n := range s.cell {
 		w.field[s.cell[n].x][s.cell[n].y] = 1
 	}
@@ -174,7 +178,12 @@ func (s *snake) div(w *World) {
 
 	var newSnake snake
 
-	newSnake.color = s.color
+	R, G, B, A := s.color.RGBA()
+	Rr := uint8(R-10) + uint8(rand.Intn(20))
+	Gr := uint8(G-10) + uint8(rand.Intn(20))
+	Br := uint8(B-10) + uint8(rand.Intn(20))
+
+	newSnake.color = color.RGBA{Rr, Gr, Br, uint8(A)}
 	newSnake.cell = make([]cell, len(s.cell)/2)
 
 	for n := range newSnake.cell {
