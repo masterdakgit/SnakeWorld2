@@ -1,12 +1,13 @@
 package gw
 
 const (
-	viewRange = 5
+	viewRange = 8
 	viewLen   = 1 + viewRange*2
+	dirWay    = 5
 )
 
 var (
-	layer = []int{viewLen * viewLen, 20, 4}
+	layer = []int{viewLen * viewLen, 20, dirWay}
 )
 
 func (s *snake) neuroNetCreate() {
@@ -68,9 +69,9 @@ func (s *snake) neuroWay(w *World) int {
 }
 
 func (s *snake) neuroGood(w *World) {
-	ans := make([]float64, 4)
+	ans := make([]float64, dirWay)
 
-	for n := 0; n < 4; n++ {
+	for n := 0; n < dirWay; n++ {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
@@ -80,9 +81,9 @@ func (s *snake) neuroGood(w *World) {
 }
 
 func (s *snake) neuroBad(w *World) {
-	ans := make([]float64, 4)
+	ans := make([]float64, dirWay)
 
-	for n := 0; n < 4; n++ {
+	for n := 0; n < dirWay; n++ {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
@@ -92,13 +93,13 @@ func (s *snake) neuroBad(w *World) {
 }
 
 func (s *snake) neuroWeak(w *World) {
-	ans := make([]float64, 4)
+	ans := make([]float64, dirWay)
 
-	for n := 0; n < 4; n++ {
+	for n := 0; n < dirWay; n++ {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 0.45
+	ans[s.way] = 0.2
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }

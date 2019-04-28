@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	dir    [4]direction
+	dir    [5]direction
 	mutex2 sync.Mutex
 )
 
@@ -97,6 +97,9 @@ func setDir() {
 
 	dir[3].dx = 0
 	dir[3].dy = 1
+
+	dir[4].dx = 0
+	dir[4].dy = 0
 
 }
 

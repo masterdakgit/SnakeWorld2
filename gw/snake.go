@@ -77,7 +77,8 @@ func (w *World) addSnake() {
 func (s *snake) move(w *World) {
 	//s.randomWay(w)
 	s.way = s.neuroWay(w)
-	if s.way == -1 {
+	if s.way == 4 {
+		s.div(w)
 		return
 	}
 
@@ -178,6 +179,11 @@ func (s *snake) eatSomeself(w *World) {
 
 func (s *snake) div(w *World) {
 	L := len(s.cell)
+
+	if L < diver {
+		s.neuroBad(w)
+		return
+	}
 
 	var newSnake snake
 
