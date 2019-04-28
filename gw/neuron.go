@@ -1,5 +1,10 @@
 package gw
 
+import (
+	"fmt"
+	"math"
+)
+
 const (
 	viewRange = 8
 	viewLen   = 1 + viewRange*2
@@ -12,6 +17,32 @@ var (
 
 func (s *snake) neuroNetCreate() {
 	s.neuroNet.CreateLayer(layer)
+}
+
+func (s *snake) relative(w *World, num int) bool {
+	num -= 1000
+	dR := math.Abs(float64(s.color.R - w.snake[num].color.R))
+	dG := math.Abs(float64(s.color.G - w.snake[num].color.G))
+	dB := math.Abs(float64(s.color.B - w.snake[num].color.B))
+
+	if dR >= 245 {
+		dR = 255 - dR
+	}
+
+	if dG >= 245 {
+		dG = 255 - dG
+	}
+
+	if dB >= 245 {
+		dB = 255 - dB
+	}
+
+	//fmt.Println(num, dR, dG, dB)
+	if dR <= 10 && dG <= 10 && dB <= 10 {
+		return true
+	}
+
+	return false
 }
 
 func (s *snake) neuroSetIn(w *World) {
@@ -31,7 +62,10 @@ func (s *snake) neuroSetIn(w *World) {
 			} else {
 				dOut = w.field[x][y]
 				if dOut >= 1000 {
-					dOut = -3
+					dOut = -4
+					if s.relative(w, w.field[x][y]) {
+						dOut = -3
+					}
 					if w.field[x][y] == s.num {
 						dOut = -2
 					}
@@ -43,21 +77,27 @@ func (s *snake) neuroSetIn(w *World) {
 			n := dx*viewLen + dy
 			s.neuroNet.Layers[0][n].Out = float64(dOut)
 
-			/*
-				if n == 0{
-					fmt.Println()
-				}
-				if dx % w.lenX == 0{
-					fmt.Println()
-				}
-				switch dOut {
-				case 0: fmt.Print(". ")
-				case -1: fmt.Print("# ")
-				case -3: fmt.Print("e ")
-				case 1: fmt.Print("* ")
-				case -2: fmt.Print("o ")
-				}
-			*/
+			if n == 0 {
+				fmt.Println()
+			}
+			if dx%w.lenX == 0 {
+				fmt.Println()
+			}
+			switch dOut {
+			case 0:
+				fmt.Print(". ")
+			case -1:
+				fmt.Print("# ")
+			case -4:
+				fmt.Print("e ")
+			case 1:
+				fmt.Print("* ")
+			case -2:
+				fmt.Print("o ")
+			case -3:
+				fmt.Print("r")
+			}
+
 		}
 	}
 }
