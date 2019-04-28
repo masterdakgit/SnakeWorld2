@@ -8,19 +8,20 @@ import (
 )
 
 var (
-	startLength = 1
+	startLength = 4
 	energeCell  = 20
 	diver       = 8
 )
 
 type snake struct {
-	cell     []cell
-	color    color.RGBA
-	num      int
-	way      int
-	energe   int
-	neuroNet nr.NeuroNet
-	dead     bool
+	cell         []cell
+	color        color.RGBA
+	num          int
+	way          int
+	energe       int
+	neuroNet     nr.NeuroNet
+	dead         bool
+	humanControl bool
 }
 
 type cell struct {
@@ -128,6 +129,9 @@ func (s *snake) step(w *World) {
 	s.cell[0].x = x
 	s.cell[0].y = y
 	w.field[x][y] = s.num
+
+	w.field[s.cell[nLast].x][s.cell[nLast].y] = s.num
+
 }
 
 func (s *snake) die(w *World) {

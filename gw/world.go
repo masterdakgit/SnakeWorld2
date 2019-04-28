@@ -84,6 +84,7 @@ func (w *World) Generation() {
 			if w.snake[n].energe < 1 {
 				w.snake[n].eatSomeself(w)
 			}
+			w.snake[n].neuroSetIn(w)
 		}
 	}
 
