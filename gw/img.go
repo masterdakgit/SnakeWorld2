@@ -27,15 +27,17 @@ func setBar(x, y int, c color.RGBA, i *image.NRGBA) {
 
 func (w *World) setSnake(i *image.NRGBA) {
 	for n := range w.snake {
-		for c := range w.snake[n].cell {
-			if c >= len(w.snake[n].cell) {
-				break
+		if !w.snake[n].dead {
+			for c := range w.snake[n].cell {
+				if c >= len(w.snake[n].cell) {
+					break
+				}
+				x := w.snake[n].cell[c].x
+				y := w.snake[n].cell[c].y
+				setBar(x, y, w.snake[n].color, i)
 			}
-			x := w.snake[n].cell[c].x
-			y := w.snake[n].cell[c].y
-			setBar(x, y, w.snake[n].color, i)
+			setBar(w.snake[n].cell[0].x, w.snake[n].cell[0].y, colorHead, i)
 		}
-		setBar(w.snake[n].cell[0].x, w.snake[n].cell[0].y, colorHead, i)
 	}
 }
 

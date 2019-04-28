@@ -10,6 +10,7 @@ import (
 var (
 	startLength = 1
 	energeCell  = 20
+	diver       = 8
 )
 
 type snake struct {
@@ -19,6 +20,7 @@ type snake struct {
 	way      int
 	energe   int
 	neuroNet nr.NeuroNet
+	dead     bool
 }
 
 type cell struct {
@@ -73,7 +75,9 @@ func (w *World) addSnake() {
 
 func (s *snake) move(w *World) {
 	s.randomWay(w)
-	s.step(w)
+	if !s.dead {
+		s.step(w)
+	}
 }
 
 func (s *snake) randomWay(w *World) {
@@ -132,13 +136,7 @@ func (s *snake) die(w *World) {
 		w.field[s.cell[n].x][s.cell[n].y] = 1
 	}
 
-	s.cell = s.cell[:startLength]
-	x, y := w.findEmptyXY()
-	for n := range s.cell {
-		s.cell[n].x = x
-		s.cell[n].y = y
-	}
-	s.energe = energeCell
+	s.dead = true
 }
 
 func (s *snake) eat(w *World) {
@@ -147,6 +145,10 @@ func (s *snake) eat(w *World) {
 	c.x = s.cell[nLast].x
 	c.y = s.cell[nLast].y
 	s.cell = append(s.cell, c)
+
+	if len(s.cell) >= diver {
+		s.div(w)
+	}
 }
 
 func (s *snake) eatSomeself(w *World) {
@@ -161,4 +163,37 @@ func (s *snake) eatSomeself(w *World) {
 	s.cell = s.cell[:nLast]
 
 	s.energe = energeCell
+}
+
+func (s *snake) div(w *World) {
+	L := len(s.cell)
+
+	var newSnake snake
+
+	newSnake.color = s.color
+	newSnake.cell = make([]cell, len(s.cell)/2)
+
+	for n := range newSnake.cell {
+		newSnake.cell[n].x = s.cell[len(s.cell)/2+n].x
+		newSnake.cell[n].y = s.cell[len(s.cell)/2+n].y
+	}
+
+	s.cell = s.cell[:L-len(s.cell)/2]
+	newSnake.num = len(w.snake) + 1000
+	newSnake.energe = energeCell
+	newSnake.neuroNet = s.neuroNet
+
+	if L != len(newSnake.cell)+len(s.cell) {
+		log.Fatal("Div: Ошибка деления. Не правильно расчитана длинна.")
+	}
+
+	for n := range w.snake {
+		if w.snake[n].dead {
+			w.snake[n] = newSnake
+			w.snake[n].dead = false
+			return
+		}
+	}
+
+	w.snake = append(w.snake, newSnake)
 }

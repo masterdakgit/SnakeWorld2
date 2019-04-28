@@ -78,10 +78,12 @@ func (w *World) Generation() {
 	mutex2.Lock()
 
 	for n := range w.snake {
-		w.snake[n].move(w)
-		w.snake[n].energe--
-		if w.snake[n].energe < 1 {
-			w.snake[n].eatSomeself(w)
+		if !w.snake[n].dead {
+			w.snake[n].move(w)
+			w.snake[n].energe--
+			if w.snake[n].energe < 1 {
+				w.snake[n].eatSomeself(w)
+			}
 		}
 	}
 
@@ -146,7 +148,9 @@ func (w *World) calcCell() int {
 		}
 	}
 	for n := range w.snake {
-		result += len(w.snake[n].cell)
+		if !w.snake[n].dead {
+			result += len(w.snake[n].cell)
+		}
 	}
 	return result
 }
@@ -159,4 +163,23 @@ func (w *World) setBalanceEat() {
 	} else {
 		w.delEat(w.calcCell() - w.balance)
 	}
+}
+
+func (w *World) liveDeadSnakes() (l, d int) {
+	l = 0
+	d = 0
+	for n := range w.snake {
+		if !w.snake[n].dead {
+			l++
+		} else {
+			d++
+		}
+	}
+	return
+}
+
+func (w *World) LiveDaedAll() (l, d, a int) {
+	l, d = w.liveDeadSnakes()
+	a = len(w.snake)
+	return
 }
