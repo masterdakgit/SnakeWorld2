@@ -1,12 +1,12 @@
 package gw
 
 const (
-	viewRange = 10
+	viewRange = 5
 	viewLen   = 1 + viewRange*2
 )
 
 var (
-	layer = []int{viewLen * viewLen, 4}
+	layer = []int{viewLen * viewLen, 20, 4}
 )
 
 func (s *snake) neuroNetCreate() {
@@ -30,13 +30,33 @@ func (s *snake) neuroSetIn(w *World) {
 			} else {
 				dOut = w.field[x][y]
 				if dOut >= 1000 {
-					dOut = -1
+					dOut = -3
+					if w.field[x][y] == s.num {
+						dOut = -2
+					}
 				}
 			}
 			dx := x - x0
 			dy := y - y0
+
 			n := dx*viewLen + dy
 			s.neuroNet.Layers[0][n].Out = float64(dOut)
+
+			/*
+				if n == 0{
+					fmt.Println()
+				}
+				if dx % w.lenX == 0{
+					fmt.Println()
+				}
+				switch dOut {
+				case 0: fmt.Print(". ")
+				case -1: fmt.Print("# ")
+				case -3: fmt.Print("e ")
+				case 1: fmt.Print("* ")
+				case -2: fmt.Print("o ")
+				}
+			*/
 		}
 	}
 }
