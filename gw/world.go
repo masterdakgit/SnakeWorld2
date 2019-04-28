@@ -3,6 +3,7 @@ package gw
 import (
 	"fmt"
 	"image"
+	"image/color"
 	"math/rand"
 	"sync"
 )
@@ -20,6 +21,7 @@ type World struct {
 	image      *image.NRGBA
 	Gen        int
 	Speed      float64
+	minSnake   int
 }
 
 type direction struct {
@@ -43,6 +45,7 @@ func (w *World) Create(x, y, nEat, minSnake, rWall int) {
 
 	w.snake = make([]snake, 0)
 	w.addEat(nEat)
+	w.minSnake = minSnake
 
 	for n := 0; n < minSnake; n++ {
 		w.addSnake()
@@ -108,6 +111,27 @@ func (w *World) Generation() {
 				w.snake[n].eatSomeself(w)
 			}
 			//w.snake[n].neuroSetIn(w)
+		}
+	}
+
+	l, _ := w.liveDeadSnakes()
+	if l < w.minSnake {
+		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
+		for n := range w.snake {
+			if w.snake[n].dead {
+				w.snake[n].dead = false
+				w.snake[n].neuroNetCreate()
+				R := uint8(rand.Intn(255))
+				G := uint8(rand.Intn(255))
+				B := uint8(rand.Intn(255))
+				w.snake[n].color = color.RGBA{R, G, B, 255}
+
+				for x := 0; x < startLength-1; x++ {
+					w.snake[n].eat(w)
+				}
+
+				break
+			}
 		}
 	}
 
