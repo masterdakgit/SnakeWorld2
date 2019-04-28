@@ -12,7 +12,6 @@ var (
 type World struct {
 	field      [][]int
 	snake      []snake
-	nCell      int
 	lenX, lenY int
 }
 
@@ -20,7 +19,7 @@ type direction struct {
 	dx, dy int
 }
 
-func (w *World) Create(x, y, nCell int) {
+func (w *World) Create(x, y, nEat, nSnake int) {
 	w.field = make([][]int, x)
 	for n := range w.field {
 		w.field[n] = make([]int, y)
@@ -30,11 +29,13 @@ func (w *World) Create(x, y, nCell int) {
 	w.setWall()
 
 	setDir()
-	w.nCell = nCell
 
 	w.snake = make([]snake, 0)
-	w.addSnake()
-	w.addEat(nCell)
+	w.addEat(nEat)
+
+	for n := 0; n < nSnake; n++ {
+		w.addSnake()
+	}
 }
 
 func (w *World) setWall() {
