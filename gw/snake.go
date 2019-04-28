@@ -4,6 +4,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand"
+	"neuron/nr"
 )
 
 var (
@@ -12,12 +13,13 @@ var (
 )
 
 type snake struct {
-	cell   []cell
-	color  color.RGBA
-	num    int
-	way    int
-	energe int
-	dead   bool
+	cell     []cell
+	color    color.RGBA
+	num      int
+	way      int
+	energe   int
+	dead     bool
+	neuroNet nr.NeuroNet
 }
 
 type cell struct {
@@ -57,6 +59,8 @@ func (w *World) addSnake() {
 	G := uint8(rand.Intn(255))
 	B := uint8(rand.Intn(255))
 	s.color = color.RGBA{R, G, B, 255}
+
+	s.neuroNetCreate()
 
 	w.snake = append(w.snake, s)
 }
@@ -110,6 +114,8 @@ func (s *snake) step(w *World) {
 }
 
 func (s *snake) die(w *World) {
+	w.delEat(startLength - len(s.cell) + 1)
+
 	s.cell = s.cell[:startLength]
 
 	for n := range s.cell {
@@ -128,13 +134,13 @@ func (s *snake) eat(w *World) {
 
 func (s *snake) eatSomeself(w *World) {
 	nLast := len(s.cell) - 1
+	w.addEat(1)
 
-	if nLast < 2 {
+	if nLast < 1 {
 		s.die(w)
 		return
 	}
 
 	w.field[s.cell[nLast].x][s.cell[nLast].y] = 0
 	s.cell = s.cell[:nLast]
-
 }

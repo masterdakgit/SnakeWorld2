@@ -1,5 +1,10 @@
 package gw
 
+import (
+	"log"
+	"math/rand"
+)
+
 var (
 	dir [4]direction
 )
@@ -7,7 +12,7 @@ var (
 type World struct {
 	field      [][]int
 	snake      []snake
-	eat        int
+	nCell      int
 	lenX, lenY int
 }
 
@@ -15,7 +20,7 @@ type direction struct {
 	dx, dy int
 }
 
-func (w *World) Create(x, y, eat int) {
+func (w *World) Create(x, y, nCell int) {
 	w.field = make([][]int, x)
 	for n := range w.field {
 		w.field[n] = make([]int, y)
@@ -24,11 +29,12 @@ func (w *World) Create(x, y, eat int) {
 	w.lenY = y
 	w.setWall()
 
-	w.eat = eat
 	setDir()
+	w.nCell = nCell
 
 	w.snake = make([]snake, 0)
 	w.addSnake()
+	w.addEat(nCell)
 }
 
 func (w *World) setWall() {
@@ -64,6 +70,52 @@ func (w *World) Generation() {
 		if w.snake[n].energe < 1 {
 			w.snake[n].eatSomeself(w)
 			w.snake[n].energe = energeCell
+		}
+	}
+}
+
+func (w *World) addEat(n int) {
+	r := 0
+	f := 0
+	for {
+		if r >= n || f > 1000 {
+			break
+		}
+		x := 1 + rand.Intn(w.lenX-3)
+		y := 1 + rand.Intn(w.lenY-2)
+
+		if w.field[x][y] == 0 {
+			w.field[x][y] = 1
+			r++
+		} else {
+			f++
+		}
+	}
+}
+
+func (w *World) delEat(n int) {
+	r := 0
+	f := 0
+
+	x := rand.Intn(w.lenX)
+	y := rand.Intn(w.lenY)
+	sy := y
+
+	for {
+		if r >= n {
+			break
+		}
+		if f > w.lenX*w.lenY {
+			log.Fatal("Невозможно удалить еду.")
+		}
+		if w.field[x%w.lenX][y%w.lenY] == 1 {
+			w.field[x%w.lenX][y%w.lenY] = 0
+			r++
+			f = 0
+		} else {
+			x++
+			y = sy + x/w.lenX
+			f++
 		}
 	}
 }

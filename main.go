@@ -8,7 +8,7 @@ import (
 var w gw.World
 
 func main() {
-	w.Create(80, 60, 1000)
+	w.Create(80, 60, 0)
 	go func() {
 		for {
 			w.Generation()
