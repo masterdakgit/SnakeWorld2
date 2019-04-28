@@ -26,7 +26,7 @@ type direction struct {
 	dx, dy int
 }
 
-func (w *World) Create(x, y, nEat, nSnake, rWall int) {
+func (w *World) Create(x, y, nEat, minSnake, rWall int) {
 	w.field = make([][]int, x)
 	for n := range w.field {
 		w.field[n] = make([]int, y)
@@ -44,7 +44,7 @@ func (w *World) Create(x, y, nEat, nSnake, rWall int) {
 	w.snake = make([]snake, 0)
 	w.addEat(nEat)
 
-	for n := 0; n < nSnake; n++ {
+	for n := 0; n < minSnake; n++ {
 		w.addSnake()
 	}
 
@@ -107,7 +107,7 @@ func (w *World) Generation() {
 			if w.snake[n].energe < 1 {
 				w.snake[n].eatSomeself(w)
 			}
-			w.snake[n].neuroSetIn(w)
+			//w.snake[n].neuroSetIn(w)
 		}
 	}
 
