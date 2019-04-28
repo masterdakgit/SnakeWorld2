@@ -25,20 +25,20 @@ func (s *snake) relative(w *World, num int) bool {
 	dG := math.Abs(float64(s.color.G - w.snake[num].color.G))
 	dB := math.Abs(float64(s.color.B - w.snake[num].color.B))
 
-	if dR >= 245 {
+	if dR >= 235 {
 		dR = 255 - dR
 	}
 
-	if dG >= 245 {
+	if dG >= 235 {
 		dG = 255 - dG
 	}
 
-	if dB >= 245 {
+	if dB >= 235 {
 		dB = 255 - dB
 	}
 
 	//fmt.Println(num, dR, dG, dB)
-	if dR <= 10 && dG <= 10 && dB <= 10 {
+	if dR <= 20 && dG <= 20 && dB <= 20 {
 		return true
 	}
 
