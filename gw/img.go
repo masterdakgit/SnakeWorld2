@@ -6,6 +6,7 @@ import (
 	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
+	"math"
 	"strconv"
 )
 
@@ -71,12 +72,12 @@ func (w *World) imgChange() {
 	w.setSnake(w.image)
 
 	w.infoPanelClear()
-	addLabel(w.image, 10, bar*w.lenY+20, "Pause: "+strconv.Itoa(int(w.Speed))+"ms")
+	addLabel(w.image, 10, bar*w.lenY+20, "Speed: "+strconv.Itoa(10-int(math.Log2(w.Speed))))
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+20, "Generation: "+strconv.Itoa(int(w.Gen)))
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+40, "Balance: "+strconv.Itoa(int(w.balance)))
 	s, c, _ := w.bestNeuroLayer()
 	addLabel(w.image, 22, bar*w.lenY+40, "Best neuron layer: "+s)
-	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+60, "Averge age: "+strconv.Itoa(w.avergeAge()))
+	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+60, "Age era: "+strconv.Itoa(w.Gen-w.ageEra))
 	w.bestColorToInfoPanel(c)
 }
 

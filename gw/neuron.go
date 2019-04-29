@@ -15,6 +15,7 @@ const (
 )
 
 func (s *snake) neuroNetCreate() {
+	s.nCorrect = float64(1 + rand.Intn(19)/20)
 	hidenLayer := rand.Intn(3)
 	s.neuroLayer = make([]int, 2+hidenLayer)
 
@@ -139,7 +140,7 @@ func (s *snake) neuroWeak(w *World) {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 0.45
+	ans[s.way] = 0.5
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }

@@ -23,6 +23,7 @@ type World struct {
 	balance    int
 	image      *image.NRGBA
 	Gen        int
+	ageEra     int
 	Speed      float64
 	minSnake   int
 }
@@ -140,6 +141,7 @@ func (w *World) Generation() {
 	l, _ := w.liveDeadSnakes()
 	if l < w.minSnake {
 		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
+		w.ageEra = w.Gen
 		for n := range w.snake {
 			if w.snake[n].dead {
 				var s snake

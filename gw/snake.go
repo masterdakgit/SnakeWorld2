@@ -14,19 +14,17 @@ var (
 )
 
 type snake struct {
-	cell         []cell
-	color        color.RGBA
-	num          int
-	way          int
-	energe       int
-	neuroNet     nr.NeuroNet
-	neuroLayer   []int
-	dead         bool
-	humanControl bool
-	genOld       int
-	Age          int
-	viewRange    int
-	viewLen      int
+	cell       []cell
+	color      color.RGBA
+	num        int
+	way        int
+	energe     int
+	neuroNet   nr.NeuroNet
+	neuroLayer []int
+	dead       bool
+	genOld     int
+	Age        int
+	nCorrect   float64
 }
 
 type cell struct {
