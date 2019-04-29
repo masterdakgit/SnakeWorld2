@@ -15,7 +15,7 @@ const (
 )
 
 func (s *snake) neuroNetCreate() {
-	s.nCorrect = float64(1 + rand.Intn(19)/20)
+	s.nCorrect = float64(1+rand.Intn(19)) / 20
 	hidenLayer := rand.Intn(3)
 	s.neuroLayer = make([]int, 2+hidenLayer)
 
@@ -117,6 +117,7 @@ func (s *snake) neuroGood(w *World) {
 	}
 
 	ans[s.way] = 0.95
+	s.neuroNet.NCorrect = s.nCorrect
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
@@ -129,6 +130,7 @@ func (s *snake) neuroBad(w *World) {
 	}
 
 	ans[s.way] = 0.05
+	s.neuroNet.NCorrect = s.nCorrect
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
@@ -141,11 +143,12 @@ func (s *snake) neuroWeak(w *World) {
 	}
 
 	ans[s.way] = 0.5
+	s.neuroNet.NCorrect = s.nCorrect
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
 
-func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, age int) {
+func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, nCor float64) {
 	liveLayer := make(map[string]int)
 	bestLayer := 0
 	bestLayerStr = ""
@@ -162,7 +165,7 @@ func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, age int
 			bestLayer = liveLayer[str]
 			bestLayerStr = str
 			color = w.snake[n].color
-			age = n
+			nCor = w.snake[n].nCorrect
 		}
 	}
 	return

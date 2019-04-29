@@ -225,6 +225,7 @@ func (s *snake) div(w *World) {
 	s.cell = s.cell[:L-len(s.cell)/2]
 	s.energe /= 2
 	newSnake.energe = s.energe
+	newSnake.nCorrect = s.nCorrect
 	newSnake.neuroNet = s.neuroNet
 	newSnake.neuroLayer = s.neuroLayer
 	newSnake.genOld = s.genOld
