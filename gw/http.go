@@ -1,7 +1,6 @@
 package gw
 
 import (
-	"fmt"
 	"image/png"
 	"log"
 	"net/http"
@@ -35,10 +34,6 @@ func (w *World) setKey(rw http.ResponseWriter, r *http.Request) {
 	if w.Speed > 1000 {
 		w.Speed = 1000
 	}
-
-	fmt.Println("Geneartion:", w.Gen)
-	fmt.Println("Speed:", w.Speed)
-	fmt.Println("Balance:", w.balance)
 
 }
 

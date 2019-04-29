@@ -70,6 +70,8 @@ func (w *World) imgChange() {
 
 	w.infoPanelClear()
 	addLabel(w.image, 10, bar*w.lenY+20, "Pause: "+strconv.Itoa(int(w.Speed))+"ms")
+	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+20, "Generation: "+strconv.Itoa(int(w.Gen)))
+	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+40, "Balance: "+strconv.Itoa(int(w.balance)))
 	s, c := w.bestNeuroLayer()
 	addLabel(w.image, 22, bar*w.lenY+40, "Best neuron layer: "+s)
 	w.bestColorToInfoPanel(c)

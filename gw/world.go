@@ -137,10 +137,6 @@ func (w *World) Generation() {
 		}
 	}
 
-	if w.Gen%20 == 0 {
-		fmt.Println(w.bestNeuroLayer())
-	}
-
 	l, _ := w.liveDeadSnakes()
 	if l < w.minSnake {
 		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
