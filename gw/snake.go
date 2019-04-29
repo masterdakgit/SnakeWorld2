@@ -9,7 +9,7 @@ import (
 
 var (
 	startLength = 4
-	energeCell  = 100
+	energeCell  = 20
 	diver       = 8
 )
 
@@ -20,6 +20,7 @@ type snake struct {
 	way          int
 	energe       int
 	neuroNet     nr.NeuroNet
+	neuroLayer   []int
 	dead         bool
 	humanControl bool
 }
@@ -204,6 +205,7 @@ func (s *snake) div(w *World) {
 	newSnake.num = len(w.snake) + 1000
 	newSnake.energe = energeCell
 	newSnake.neuroNet = s.neuroNet
+	newSnake.neuroLayer = s.neuroLayer
 
 	if L != len(newSnake.cell)+len(s.cell) {
 		log.Fatal("Div: Ошибка деления. Не правильно расчитана длинна.")

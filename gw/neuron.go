@@ -1,26 +1,43 @@
 package gw
 
 import (
-	"fmt"
 	"math"
+	"math/rand"
+	"strconv"
 )
 
 const (
-	viewRange = 8
+	viewRange = 4
 	viewLen   = 1 + viewRange*2
 	dirWay    = 5
 )
 
-var (
-	layer = []int{viewLen * viewLen, 10, dirWay}
-)
-
 func (s *snake) neuroNetCreate() {
-	s.neuroNet.CreateLayer(layer)
+	hidenLayer := rand.Intn(3)
+	s.neuroLayer = make([]int, 2+hidenLayer)
+
+	s.neuroLayer[0] = viewLen * viewLen
+	s.neuroLayer[len(s.neuroLayer)-1] = dirWay
+
+	if hidenLayer > 0 {
+		s.neuroLayer[len(s.neuroLayer)-2] = dirWay + rand.Intn(viewLen*dirWay)
+	}
+
+	if hidenLayer > 1 {
+		s.neuroLayer[len(s.neuroLayer)-3] = viewLen*viewLen + rand.Intn(viewLen*viewLen*dirWay)
+	}
+
+	//fmt.Println(s.neuroLayer)
+	s.neuroNet.CreateLayer(s.neuroLayer)
 }
 
 func (s *snake) relative(w *World, num int) bool {
 	num -= 1000
+
+	if num >= len(w.snake) {
+		return false
+	}
+
 	dR := math.Abs(float64(s.color.R - w.snake[num].color.R))
 	dG := math.Abs(float64(s.color.G - w.snake[num].color.G))
 	dB := math.Abs(float64(s.color.B - w.snake[num].color.B))
@@ -76,28 +93,28 @@ func (s *snake) neuroSetIn(w *World) {
 
 			n := dx*viewLen + dy
 			s.neuroNet.Layers[0][n].Out = float64(dOut)
-
-			if n == 0 {
-				fmt.Println()
-			}
-			if dx%w.lenX == 0 {
-				fmt.Println()
-			}
-			switch dOut {
-			case 0:
-				fmt.Print(". ")
-			case -1:
-				fmt.Print("# ")
-			case -4:
-				fmt.Print("e ")
-			case 1:
-				fmt.Print("* ")
-			case -2:
-				fmt.Print("o ")
-			case -3:
-				fmt.Print("r")
-			}
-
+			/*
+				if n == 0 {
+					fmt.Println()
+				}
+				if dx%w.lenX == 0 {
+					fmt.Println()
+				}
+				switch dOut {
+				case 0:
+					fmt.Print(". ")
+				case -1:
+					fmt.Print("# ")
+				case -4:
+					fmt.Print("e ")
+				case 1:
+					fmt.Print("* ")
+				case -2:
+					fmt.Print("o ")
+				case -3:
+					fmt.Print("r")
+				}
+			*/
 		}
 	}
 }
@@ -142,4 +159,25 @@ func (s *snake) neuroWeak(w *World) {
 	ans[s.way] = 0.2
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
+}
+
+func (w *World) bestNeuroLayer() string {
+	liveLayer := make(map[string]int)
+	bestLayer := 0
+	bestLayerStr := ""
+	for n := range w.snake {
+		if w.snake[n].dead {
+			continue
+		}
+		str := ""
+		for s := range w.snake[n].neuroLayer {
+			str += strconv.Itoa(w.snake[n].neuroLayer[s]) + " "
+		}
+		liveLayer[str]++
+		if bestLayer < liveLayer[str] {
+			bestLayer = liveLayer[str]
+			bestLayerStr = str
+		}
+	}
+	return bestLayerStr
 }
