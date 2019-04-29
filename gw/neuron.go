@@ -88,6 +88,9 @@ func (s *snake) neuroSetIn(w *World) {
 						dOut = -2
 					}
 				}
+				if dOut > 1 && dOut <= 1+rAid*energeCell {
+					dOut = -5
+				}
 			}
 			dx := x - x0
 			dy := y - y0
@@ -113,7 +116,9 @@ func (s *snake) neuroSetIn(w *World) {
 				case -2:
 					fmt.Print("o ")
 				case -3:
-					fmt.Print("r")
+					fmt.Print("r ")
+				case -5:
+					fmt.Print("A ")
 				}
 			*/
 		}
@@ -157,12 +162,12 @@ func (s *snake) neuroWeak(w *World) {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 0.5
+	ans[s.way] = 0.45
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
 
-func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA) {
+func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, age int) {
 	liveLayer := make(map[string]int)
 	bestLayer := 0
 	bestLayerStr = ""
@@ -179,6 +184,7 @@ func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA) {
 			bestLayer = liveLayer[str]
 			bestLayerStr = str
 			color = w.snake[n].color
+			age = n
 		}
 	}
 	return

@@ -14,6 +14,7 @@ var (
 	wg     sync.WaitGroup
 	Core   = 4
 	cr     int
+	rAid   = 2
 )
 
 type World struct {
@@ -39,7 +40,7 @@ func (w *World) Create(x, y, nEat, minSnake, rWall int) {
 	w.lenX = x
 	w.lenY = y
 	w.setWall()
-	w.addRanomWall(rWall)
+	w.addRandomWall(rWall)
 	w.Speed = 100
 
 	setDir()
@@ -69,7 +70,7 @@ func (w *World) setWall() {
 	}
 }
 
-func (w *World) addRanomWall(n int) {
+func (w *World) addRandomWall(n int) {
 	r := 0
 	f := 0
 	for {
@@ -144,6 +145,7 @@ func (w *World) Generation() {
 			if w.snake[n].dead {
 				w.snake[n].neuroNetCreate()
 				w.snake[n].dead = false
+				w.snake[n].genOld = 0
 				R := uint8(rand.Intn(255))
 				G := uint8(rand.Intn(255))
 				B := uint8(rand.Intn(255))
@@ -210,12 +212,19 @@ func (w *World) delEat(n int) {
 	}
 }
 
+func (w *World) removeAid(x, y int) {
+	w.field[x][y]--
+}
+
 func (w *World) calcCell() int {
 	result := 0
 	for x := range w.field {
 		for y := range w.field[0] {
-			if w.field[x][y] == 1 {
+			if w.field[x][y] >= 1 {
 				result++
+			}
+			if w.field[x][y] > 1 && w.field[x][y] <= 1+rAid*energeCell {
+				w.removeAid(x, y)
 			}
 		}
 	}
@@ -254,4 +263,17 @@ func (w *World) LiveDaedAll() (l, d, a int) {
 	l, d = w.liveDeadSnakes()
 	a = len(w.snake)
 	return
+}
+
+func (w *World) avergeAge() int {
+	sumAge := 0
+	nSnake := 0
+	for n := range w.snake {
+		if w.snake[n].dead {
+			continue
+		}
+		nSnake++
+		sumAge += w.snake[n].Age
+	}
+	return sumAge / nSnake
 }

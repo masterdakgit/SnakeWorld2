@@ -23,6 +23,8 @@ type snake struct {
 	neuroLayer   []int
 	dead         bool
 	humanControl bool
+	genOld       int
+	Age          int
 }
 
 type cell struct {
@@ -77,6 +79,7 @@ func (w *World) addSnake() {
 
 func (s *snake) move(w *World) {
 	//s.randomWay(w)
+	s.Age++
 	s.way = s.neuroWay(w)
 	if s.way == 4 {
 		s.div(w)
@@ -118,11 +121,24 @@ func (s *snake) step(w *World) {
 	x := s.cell[0].x + dir[s.way].dx
 	y := s.cell[0].y + dir[s.way].dy
 
-	if w.field[x][y] == -1 || w.field[x][y] >= 1000 {
-		if rand.Intn(100) == 0 {
-			s.die(w)
+	if w.field[x][y] == -1 {
+		s.neuroBad(w)
+		return
+	}
+
+	if w.field[x][y] >= 1000 {
+		num := w.field[x][y] - 1000
+		if s.num == w.field[x][y] {
+			s.neuroBad(w)
 			return
 		}
+		if num < len(w.snake) {
+			w.snake[num].dieAid(w)
+		}
+		return
+	}
+
+	if w.field[x][y] > 1 {
 		s.neuroBad(w)
 		return
 	}
@@ -152,7 +168,15 @@ func (s *snake) die(w *World) {
 	for n := range s.cell {
 		w.field[s.cell[n].x][s.cell[n].y] = 1
 	}
+	s.Age = 0
+	s.dead = true
+}
 
+func (s *snake) dieAid(w *World) {
+	for n := range s.cell {
+		w.field[s.cell[n].x][s.cell[n].y] = rAid*energeCell + 1
+	}
+	s.Age = 0
 	s.dead = true
 }
 
@@ -210,6 +234,7 @@ func (s *snake) div(w *World) {
 	newSnake.energe = energeCell
 	newSnake.neuroNet = s.neuroNet
 	newSnake.neuroLayer = s.neuroLayer
+	newSnake.genOld = s.genOld
 
 	if L != len(newSnake.cell)+len(s.cell) {
 		log.Fatal("Div: Ошибка деления. Не правильно расчитана длинна.")

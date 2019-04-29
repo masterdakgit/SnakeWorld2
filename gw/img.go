@@ -20,7 +20,7 @@ var (
 	colorHead      = color.RGBA{0, 0, 0, 255}
 	colorWall      = color.RGBA{170, 170, 170, 255}
 	colorEat       = color.RGBA{0, 170, 0, 255}
-	colorAid       = color.RGBA{0, 0, 255, 255}
+	colorAid       = color.RGBA{255, 0, 0, 255}
 )
 
 func setBar(x, y int, c color.RGBA, i *image.NRGBA) {
@@ -60,8 +60,10 @@ func (w *World) imgChange() {
 				setBar(x, y, colorWall, w.image)
 			case 1:
 				setBar(x, y, colorEat, w.image)
-			case 2:
-				setBar(x, y, colorAid, w.image)
+			default:
+				if w.field[x][y] <= 1+rAid*energeCell {
+					setBar(x, y, colorAid, w.image)
+				}
 			}
 		}
 	}
@@ -72,8 +74,9 @@ func (w *World) imgChange() {
 	addLabel(w.image, 10, bar*w.lenY+20, "Pause: "+strconv.Itoa(int(w.Speed))+"ms")
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+20, "Generation: "+strconv.Itoa(int(w.Gen)))
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+40, "Balance: "+strconv.Itoa(int(w.balance)))
-	s, c := w.bestNeuroLayer()
+	s, c, _ := w.bestNeuroLayer()
 	addLabel(w.image, 22, bar*w.lenY+40, "Best neuron layer: "+s)
+	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+60, "Averge age: "+strconv.Itoa(w.avergeAge()))
 	w.bestColorToInfoPanel(c)
 }
 
