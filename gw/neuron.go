@@ -1,38 +1,36 @@
 package gw
 
 import (
-	"fmt"
 	"log"
 	"math"
-	"math/rand"
+	"neuron/nr"
 )
 
 const (
 	viewRange = 4
 	viewLen   = 1 + viewRange*2
+	lenMomory = viewRange * 2
 	dirWay    = 4
 )
 
+type memory struct {
+	data [lenMomory][]nr.Neuron
+	pos  int
+}
+
 func (s *snake) neuroNetCreate() {
-	s.diver = 2 + rand.Intn(15)
+	s.diver = 8
+	s.nCorrect = 0.2
 
-	s.nCorrect = float64(1+rand.Intn(19)) / 20
-	hidenLayer := rand.Intn(3)
-	s.neuroLayer = make([]int, 2+hidenLayer)
+	neuroLayer := make([]int, 2)
+	neuroLayer[0] = viewLen * viewLen
+	neuroLayer[1] = dirWay
 
-	s.neuroLayer[0] = viewLen * viewLen
-	s.neuroLayer[len(s.neuroLayer)-1] = dirWay
-
-	if hidenLayer > 0 {
-		s.neuroLayer[len(s.neuroLayer)-2] = dirWay + rand.Intn(viewLen*dirWay)
+	for n := range s.memory.data {
+		s.memory.data[n] = make([]nr.Neuron, viewLen*viewLen)
 	}
 
-	if hidenLayer > 1 {
-		s.neuroLayer[len(s.neuroLayer)-3] = viewLen*viewLen + rand.Intn(viewLen*viewLen*dirWay)
-	}
-
-	//fmt.Println(s.neuroLayer)
-	s.neuroNet.CreateLayer(s.neuroLayer)
+	s.neuroNet.CreateLayer(neuroLayer)
 }
 
 func (s *snake) relative(w *World, num int) bool {
@@ -80,7 +78,7 @@ func (s *snake) neuroSetIn(w *World) {
 	for y := y0; y <= y1; y++ {
 		for x := x0; x <= x1; x++ {
 			if y < 0 || y >= w.lenY || x < 0 || x >= w.lenX {
-				dOut = -0.9 //Выход за край карты
+				dOut = 0.01 //Выход за край карты
 				//str = "##"
 			} else {
 				dOut, _ = s.dataToOut(w, w.field[x][y])
@@ -90,7 +88,7 @@ func (s *snake) neuroSetIn(w *World) {
 			dy := y - y0
 
 			n := dx*viewLen + dy
-			s.neuroNet.Layers[0][n].Out = float64(dOut)
+			s.neuroNet.Layers[0][n].Out = dOut
 			/*
 				if n == 0 {
 					fmt.Println()
@@ -102,6 +100,9 @@ func (s *snake) neuroSetIn(w *World) {
 			*/
 		}
 	}
+	s.memory.data[s.memory.pos] = s.neuroNet.Layers[0]
+
+	s.memory.pos = (s.memory.pos + 1) % lenMomory
 }
 
 func (s *snake) neuroWay(w *World) int {
@@ -110,63 +111,24 @@ func (s *snake) neuroWay(w *World) int {
 	return s.neuroNet.MaxOutputNumber(0)
 }
 
-func (s *snake) neuroGood(w *World) {
+func (s *snake) neuroCorrect(w *World, a float64) {
+	s.neuroNet.NCorrect = s.nCorrect
+
 	ans := make([]float64, dirWay)
 
-	for n := 0; n < dirWay; n++ {
-		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
-	}
-
-	ans[s.way] = 0.95
-	s.neuroNet.NCorrect = s.nCorrect
-	s.neuroNet.SetAnswers(ans)
-	s.neuroNet.Correct()
-}
-
-func (s *snake) neuroBad(w *World) {
-	ans := make([]float64, dirWay)
-
-	for n := 0; n < dirWay; n++ {
-		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
-	}
-
-	ans[s.way] = 0.05
-	s.neuroNet.NCorrect = s.nCorrect
-	s.neuroNet.SetAnswers(ans)
-	s.neuroNet.Correct()
-}
-
-func (s *snake) neuroWeak(w *World) {
-	ans := make([]float64, dirWay)
-
-	for n := 0; n < dirWay; n++ {
-		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
-	}
-
-	ans[s.way] = 0.5
-	s.neuroNet.NCorrect = s.nCorrect
-	s.neuroNet.SetAnswers(ans)
-	s.neuroNet.Correct()
-}
-
-func (w *World) bestNeuroLayer() (bestNCorrectStr string, s *snake) {
-	liveNCorrect := make(map[string]int)
-	bestNCorrect := 0
-	bestNCorrectStr = ""
-	for n := range w.snake {
-		if w.snake[n].dead {
-			continue
+	for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
+		p := pos % lenMomory
+		s.neuroNet.Layers[0] = s.memory.data[p]
+		s.neuroNet.Calc()
+		way := s.neuroNet.MaxOutputNumber(0)
+		for n := 0; n < dirWay; n++ {
+			ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 		}
-		str := fmt.Sprintf("%.2f", w.snake[n].nCorrect)
-		liveNCorrect[str]++
+		ans[way] = a
 
-		if bestNCorrect < liveNCorrect[str] {
-			bestNCorrect = liveNCorrect[str]
-			bestNCorrectStr = str
-			s = &w.snake[n]
-		}
+		s.neuroNet.SetAnswers(ans)
+		s.neuroNet.Correct()
 	}
-	return
 }
 
 func (s *snake) dataToOut(w *World, data int) (d float64, str string) {
@@ -192,6 +154,5 @@ func (s *snake) dataToOut(w *World, data int) (d float64, str string) {
 	}
 
 	log.Fatal("dataToOut: Пустое значение.")
-
 	return 0, "  " //
 }

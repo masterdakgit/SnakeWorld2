@@ -13,18 +13,18 @@ var (
 )
 
 type snake struct {
-	cell       []cell
-	color      color.RGBA
-	num        int
-	way        int
-	energe     int
-	neuroNet   nr.NeuroNet
-	neuroLayer []int
-	dead       bool
-	genOld     int
-	Age        int
-	nCorrect   float64
-	diver      int
+	cell     []cell
+	color    color.RGBA
+	num      int
+	way      int
+	energe   int
+	neuroNet nr.NeuroNet
+	memory   memory
+	dead     bool
+	genOld   int
+	Age      int
+	nCorrect float64
+	diver    int
 }
 
 type cell struct {
@@ -81,10 +81,6 @@ func (s *snake) move(w *World) {
 	//s.randomWay(w)
 	s.Age++
 	s.way = s.neuroWay(w)
-	if s.way == 4 {
-		s.div(w)
-		return
-	}
 
 	if !s.dead {
 		s.step(w)
@@ -118,29 +114,29 @@ func (s *snake) randomWay(w *World) {
 }
 
 func (s *snake) step(w *World) {
-	x := s.cell[0].x + dir[s.way].dx
-	y := s.cell[0].y + dir[s.way].dy
+	x := (w.lenX + s.cell[0].x + dir[s.way].dx) % w.lenX
+	y := (w.lenY + s.cell[0].y + dir[s.way].dy) % w.lenY
 
 	if w.field[x][y] == -1 {
-		s.neuroBad(w)
+		s.neuroCorrect(w, 0.05)
 		return
 	}
 
 	if w.field[x][y] >= 1000 {
-		s.neuroBad(w)
+		s.neuroCorrect(w, 0.05)
 		return
 	}
 
 	if w.field[x][y] > 1 {
-		s.neuroBad(w)
+		s.neuroCorrect(w, 0.05)
 		return
 	}
 
 	if w.field[x][y] == 1 {
 		s.eat(w)
-		s.neuroGood(w)
+		s.neuroCorrect(w, 0.95)
 	} else {
-		s.neuroWeak(w)
+		s.neuroCorrect(w, 0.5)
 	}
 
 	nLast := len(s.cell) - 1
@@ -203,7 +199,6 @@ func (s *snake) div(w *World) {
 	L := len(s.cell)
 
 	if L < s.diver {
-		s.neuroBad(w)
 		return
 	}
 
@@ -229,8 +224,7 @@ func (s *snake) div(w *World) {
 	newSnake.nCorrect = s.nCorrect
 	newSnake.neuroNet = s.neuroNet
 	newSnake.diver = s.diver
-
-	newSnake.neuroLayer = s.neuroLayer
+	newSnake.memory = s.memory
 	newSnake.genOld = s.genOld
 
 	if L != len(newSnake.cell)+len(s.cell) {

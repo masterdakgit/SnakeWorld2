@@ -63,10 +63,21 @@ func (w *World) setWall() {
 	for x := range w.field {
 		w.field[x][0] = -1
 		w.field[x][w.lenY-1] = -1
+		/*		if x % 40 == 20{
+					w.field[x][0] = 0
+					w.field[x][w.lenY-1] = 0
+
+				}
+		*/
 	}
 	for y := range w.field[0] {
 		w.field[0][y] = -1
 		w.field[w.lenX-1][y] = -1
+		/*		if y % 30 == 15{
+					w.field[0][y] = 0
+					w.field[w.lenX-1][y] = 0
+				}
+		*/
 	}
 }
 
