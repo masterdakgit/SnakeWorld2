@@ -19,9 +19,9 @@ func (w *World) setKey(rw http.ResponseWriter, r *http.Request) {
 
 	//fmt.Println(key)
 	switch key {
-	case "-":
-		w.Speed *= 3
 	case " ":
+		w.Speed *= 3
+	case "-":
 		w.Speed /= 3
 	case "*":
 		w.balance = int(float64(w.balance) * 1.1)

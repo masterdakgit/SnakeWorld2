@@ -9,7 +9,7 @@ import (
 
 var (
 	startLength = 4
-	energeCell  = 20
+	energeCell  = 10
 	diver       = 8
 )
 
