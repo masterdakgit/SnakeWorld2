@@ -10,6 +10,7 @@ const (
 	viewRange = 4
 	viewLen   = 1 + viewRange*2
 	dirWay    = 5
+	Core      = 4
 )
 
 func (s *snake) neuroNetCreate() {
