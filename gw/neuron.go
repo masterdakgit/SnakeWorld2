@@ -1,6 +1,7 @@
 package gw
 
 import (
+	"image/color"
 	"math"
 	"math/rand"
 	"strconv"
@@ -9,8 +10,7 @@ import (
 const (
 	viewRange = 4
 	viewLen   = 1 + viewRange*2
-	dirWay    = 5
-	Core      = 4
+	dirWay    = 4
 )
 
 func (s *snake) neuroNetCreate() {
@@ -162,10 +162,10 @@ func (s *snake) neuroWeak(w *World) {
 	s.neuroNet.Correct()
 }
 
-func (w *World) bestNeuroLayer() string {
+func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA) {
 	liveLayer := make(map[string]int)
 	bestLayer := 0
-	bestLayerStr := ""
+	bestLayerStr = ""
 	for n := range w.snake {
 		if w.snake[n].dead {
 			continue
@@ -178,7 +178,8 @@ func (w *World) bestNeuroLayer() string {
 		if bestLayer < liveLayer[str] {
 			bestLayer = liveLayer[str]
 			bestLayerStr = str
+			color = w.snake[n].color
 		}
 	}
-	return bestLayerStr
+	return
 }

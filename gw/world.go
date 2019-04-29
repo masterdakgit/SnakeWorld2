@@ -11,6 +11,9 @@ import (
 var (
 	dir    [dirWay]direction
 	mutex2 sync.Mutex
+	wg     sync.WaitGroup
+	Core   = 4
+	cr     int
 )
 
 type World struct {
@@ -98,26 +101,43 @@ func setDir() {
 	dir[3].dx = 0
 	dir[3].dy = 1
 
-	dir[4].dx = 0
-	dir[4].dy = 0
-
 }
 
 func (w *World) Generation() {
 	mutex2.Lock()
 
-	for n := range w.snake {
-		if !w.snake[n].dead {
-			w.snake[n].move(w)
-			w.snake[n].energe--
-			if w.snake[n].energe < 1 {
-				w.snake[n].eatSomeself(w)
+	for n := 0; n < len(w.snake)/Core; n++ {
+		wg.Add(Core)
+		for cr := 0; cr < Core; cr++ {
+			nc := n*Core + cr
+			go func() {
+				if !w.snake[nc].dead {
+					w.snake[nc].move(w)
+					w.snake[nc].energe--
+					if w.snake[nc].energe < 1 {
+						w.snake[nc].eatSomeself(w)
+					}
+				}
+				wg.Done()
+			}()
+		}
+		wg.Wait()
+	}
+
+	ns := len(w.snake) / Core
+	ns *= Core
+
+	for nc := ns; nc < len(w.snake); nc++ {
+		if !w.snake[nc].dead {
+			w.snake[nc].move(w)
+			w.snake[nc].energe--
+			if w.snake[nc].energe < 1 {
+				w.snake[nc].eatSomeself(w)
 			}
-			//w.snake[n].neuroSetIn(w)
 		}
 	}
 
-	if w.Gen%10 == 0 {
+	if w.Gen%20 == 0 {
 		fmt.Println(w.bestNeuroLayer())
 	}
 
@@ -126,8 +146,8 @@ func (w *World) Generation() {
 		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
 		for n := range w.snake {
 			if w.snake[n].dead {
-				w.snake[n].dead = false
 				w.snake[n].neuroNetCreate()
+				w.snake[n].dead = false
 				R := uint8(rand.Intn(255))
 				G := uint8(rand.Intn(255))
 				B := uint8(rand.Intn(255))
