@@ -54,7 +54,7 @@ func (w *World) Create(x, y, nEat, minSnake, rWall int) {
 		w.addSnake()
 	}
 
-	w.image = image.NewNRGBA(image.Rect(0, 0, bar*w.lenX+1, bar*w.lenY+1))
+	w.image = image.NewNRGBA(image.Rect(0, 0, bar*w.lenX+1, bar*w.lenY+1+infoPanelY))
 	w.imgChange()
 }
 

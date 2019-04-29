@@ -157,7 +157,7 @@ func (s *snake) neuroWeak(w *World) {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 0.2
+	ans[s.way] = 0.5
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }

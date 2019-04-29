@@ -17,7 +17,7 @@
         }
 
         document.onkeydown = function (k) {
-            document.getElementById("kcode").textContent = k.key;
+            //document.getElementById("kcode").textContent = k.key;
             ajax.open('GET', '/key/?key=' + k.key + "&id=" + MyId);
             ajax.setRequestHeader("X-Requested-With", "XMLHttpRequest");
             ajax.send();
@@ -29,6 +29,8 @@
 </head>
 <body>
     <p align="center"><img src="/pict/" id="i" onload="f()"></p>
+    <!--
     <p align="center">Key code: <span id="kcode"></span></p>
+    -->
 </body>
 </html>

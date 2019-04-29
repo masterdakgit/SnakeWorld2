@@ -1,8 +1,16 @@
 package gw
 
 import (
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 	"image"
 	"image/color"
+	"strconv"
+)
+
+const (
+	infoPanelY = 64
 )
 
 var (
@@ -59,4 +67,39 @@ func (w *World) imgChange() {
 	}
 
 	w.setSnake(w.image)
+
+	w.infoPanelClear()
+	addLabel(w.image, 10, bar*w.lenY+20, "Pause: "+strconv.Itoa(int(w.Speed))+"ms")
+	s, c := w.bestNeuroLayer()
+	addLabel(w.image, 22, bar*w.lenY+40, "Best neuron layer: "+s)
+	w.bestColorToInfoPanel(c)
+}
+
+func (w *World) bestColorToInfoPanel(c color.RGBA) {
+	for x := 10; x < 10+bar; x++ {
+		for y := bar*w.lenY + 31; y < bar*w.lenY+31+bar; y++ {
+			w.image.Set(x, y, c)
+		}
+	}
+}
+
+func (w *World) infoPanelClear() {
+	for x := 0; x < bar*w.lenX+1; x++ {
+		for y := bar*w.lenY + 1; y < bar*w.lenY+1+infoPanelY; y++ {
+			w.image.Set(x, y, color.RGBA{255, 255, 255, 255})
+		}
+	}
+}
+
+func addLabel(img *image.NRGBA, x, y int, label string) {
+	col := color.RGBA{0, 0, 0, 255}
+	point := fixed.Point26_6{fixed.Int26_6(x * 64), fixed.Int26_6(y * 64)}
+
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(col),
+		Face: basicfont.Face7x13,
+		Dot:  point,
+	}
+	d.DrawString(label)
 }

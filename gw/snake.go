@@ -119,6 +119,10 @@ func (s *snake) step(w *World) {
 	y := s.cell[0].y + dir[s.way].dy
 
 	if w.field[x][y] == -1 || w.field[x][y] >= 1000 {
+		if rand.Intn(100) == 0 {
+			s.die(w)
+			return
+		}
 		s.neuroBad(w)
 		return
 	}
