@@ -1,11 +1,10 @@
 package gw
 
 import (
-	"image/color"
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
-	"strconv"
 )
 
 const (
@@ -15,6 +14,8 @@ const (
 )
 
 func (s *snake) neuroNetCreate() {
+	s.diver = 2 + rand.Intn(15)
+
 	s.nCorrect = float64(1+rand.Intn(19)) / 20
 	hidenLayer := rand.Intn(3)
 	s.neuroLayer = make([]int, 2+hidenLayer)
@@ -148,24 +149,21 @@ func (s *snake) neuroWeak(w *World) {
 	s.neuroNet.Correct()
 }
 
-func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, nCor float64) {
-	liveLayer := make(map[string]int)
-	bestLayer := 0
-	bestLayerStr = ""
+func (w *World) bestNeuroLayer() (bestNCorrectStr string, s *snake) {
+	liveNCorrect := make(map[string]int)
+	bestNCorrect := 0
+	bestNCorrectStr = ""
 	for n := range w.snake {
 		if w.snake[n].dead {
 			continue
 		}
-		str := ""
-		for s := range w.snake[n].neuroLayer {
-			str += strconv.Itoa(w.snake[n].neuroLayer[s]) + " "
-		}
-		liveLayer[str]++
-		if bestLayer < liveLayer[str] {
-			bestLayer = liveLayer[str]
-			bestLayerStr = str
-			color = w.snake[n].color
-			nCor = w.snake[n].nCorrect
+		str := fmt.Sprintf("%.2f", w.snake[n].nCorrect)
+		liveNCorrect[str]++
+
+		if bestNCorrect < liveNCorrect[str] {
+			bestNCorrect = liveNCorrect[str]
+			bestNCorrectStr = str
+			s = &w.snake[n]
 		}
 	}
 	return

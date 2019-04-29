@@ -10,7 +10,6 @@ import (
 var (
 	startLength = 4
 	energeCell  = 10
-	diver       = 8
 )
 
 type snake struct {
@@ -25,6 +24,7 @@ type snake struct {
 	genOld     int
 	Age        int
 	nCorrect   float64
+	diver      int
 }
 
 type cell struct {
@@ -180,7 +180,7 @@ func (s *snake) eat(w *World) {
 	c.y = s.cell[nLast].y
 	s.cell = append(s.cell, c)
 
-	if len(s.cell) >= diver {
+	if len(s.cell) >= s.diver {
 		s.div(w)
 	}
 }
@@ -202,7 +202,7 @@ func (s *snake) eatSomeself(w *World) {
 func (s *snake) div(w *World) {
 	L := len(s.cell)
 
-	if L < diver {
+	if L < s.diver {
 		s.neuroBad(w)
 		return
 	}
@@ -225,8 +225,11 @@ func (s *snake) div(w *World) {
 	s.cell = s.cell[:L-len(s.cell)/2]
 	s.energe /= 2
 	newSnake.energe = s.energe
+
 	newSnake.nCorrect = s.nCorrect
 	newSnake.neuroNet = s.neuroNet
+	newSnake.diver = s.diver
+
 	newSnake.neuroLayer = s.neuroLayer
 	newSnake.genOld = s.genOld
 
