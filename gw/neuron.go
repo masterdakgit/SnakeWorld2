@@ -1,7 +1,9 @@
 package gw
 
 import (
+	"fmt"
 	"image/color"
+	"log"
 	"math"
 	"math/rand"
 	"strconv"
@@ -71,56 +73,31 @@ func (s *snake) neuroSetIn(w *World) {
 	y0 := y - viewRange
 	y1 := y + viewRange
 
-	dOut := 0
+	dOut := float64(0.01)
+	str := "  "
 
 	for y := y0; y <= y1; y++ {
 		for x := x0; x <= x1; x++ {
 			if y < 0 || y >= w.lenY || x < 0 || x >= w.lenX {
-				dOut = -1
+				dOut = -0.9 //Выход за край карты
+				str = "##"
 			} else {
-				dOut = w.field[x][y]
-				if dOut >= 1000 {
-					dOut = -4
-					if s.relative(w, w.field[x][y]) {
-						dOut = -3
-					}
-					if w.field[x][y] == s.num {
-						dOut = -2
-					}
-				}
-				if dOut > 1 && dOut <= 1+rAid*energeCell {
-					dOut = -5
-				}
+				dOut, str = s.dataToOut(w, w.field[x][y])
 			}
+
 			dx := x - x0
 			dy := y - y0
 
 			n := dx*viewLen + dy
 			s.neuroNet.Layers[0][n].Out = float64(dOut)
-			/*
-				if n == 0 {
-					fmt.Println()
-				}
-				if dx%w.lenX == 0 {
-					fmt.Println()
-				}
-				switch dOut {
-				case 0:
-					fmt.Print(". ")
-				case -1:
-					fmt.Print("# ")
-				case -4:
-					fmt.Print("e ")
-				case 1:
-					fmt.Print("* ")
-				case -2:
-					fmt.Print("o ")
-				case -3:
-					fmt.Print("r ")
-				case -5:
-					fmt.Print("A ")
-				}
-			*/
+
+			if n == 0 {
+				fmt.Println()
+			}
+			if dx%w.lenX == 0 {
+				fmt.Println()
+			}
+			fmt.Print(str)
 		}
 	}
 }
@@ -138,7 +115,7 @@ func (s *snake) neuroGood(w *World) {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 1
+	ans[s.way] = 0.95
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
@@ -150,7 +127,7 @@ func (s *snake) neuroBad(w *World) {
 		ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 	}
 
-	ans[s.way] = 0
+	ans[s.way] = 0.05
 	s.neuroNet.SetAnswers(ans)
 	s.neuroNet.Correct()
 }
@@ -188,4 +165,31 @@ func (w *World) bestNeuroLayer() (bestLayerStr string, color color.RGBA, age int
 		}
 	}
 	return
+}
+
+func (s *snake) dataToOut(w *World, data int) (d float64, str string) {
+	switch data {
+	case -1:
+		return -0.5, "# " //Стена
+	case 0:
+		return 0.01, ". " //Пусто
+	case 1:
+		return 0.99, "* " //Еда
+	}
+
+	if data > 1 && data < 1000 {
+		return -0.9, "A " //Яд
+	}
+
+	if data >= 1000 {
+		if s.relative(w, data) {
+			return -0.1, "o " //Я или родственник
+		} else {
+			return -0.3, "e " //Чужой
+		}
+	}
+
+	log.Fatal("dataToOut: Пустое значение.")
+
+	return 0, "  " //
 }

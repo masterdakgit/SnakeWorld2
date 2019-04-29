@@ -230,8 +230,8 @@ func (s *snake) div(w *World) {
 	}
 
 	s.cell = s.cell[:L-len(s.cell)/2]
-	newSnake.num = len(w.snake) + 1000
-	newSnake.energe = energeCell
+	s.energe /= 2
+	newSnake.energe = s.energe
 	newSnake.neuroNet = s.neuroNet
 	newSnake.neuroLayer = s.neuroLayer
 	newSnake.genOld = s.genOld
@@ -242,11 +242,13 @@ func (s *snake) div(w *World) {
 
 	for n := range w.snake {
 		if w.snake[n].dead {
+			newSnake.num = w.snake[n].num
 			w.snake[n] = newSnake
 			w.snake[n].dead = false
 			return
 		}
 	}
 
+	newSnake.num = len(w.snake) + 1000
 	w.snake = append(w.snake, newSnake)
 }

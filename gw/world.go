@@ -12,8 +12,7 @@ var (
 	dir    [dirWay]direction
 	mutex2 sync.Mutex
 	wg     sync.WaitGroup
-	Core   = 4
-	cr     int
+	Core   = 1
 	rAid   = 2
 )
 
@@ -143,18 +142,27 @@ func (w *World) Generation() {
 		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
 		for n := range w.snake {
 			if w.snake[n].dead {
-				w.snake[n].neuroNetCreate()
-				w.snake[n].dead = false
-				w.snake[n].genOld = 0
+				var s snake
+				s.cell = make([]cell, startLength)
+				s.energe = energeCell
+
+				x, y := w.findEmptyXY()
+
+				for n := range s.cell {
+					s.cell[n].x = x
+					s.cell[n].y = y
+				}
+
+				s.num = w.snake[n].num
+				w.field[x][y] = s.num
+
 				R := uint8(rand.Intn(255))
 				G := uint8(rand.Intn(255))
 				B := uint8(rand.Intn(255))
-				w.snake[n].color = color.RGBA{R, G, B, 255}
+				s.color = color.RGBA{R, G, B, 255}
 
-				for x := 0; x < startLength-1; x++ {
-					w.snake[n].eat(w)
-				}
-
+				s.neuroNetCreate()
+				w.snake[n] = s
 				break
 			}
 		}
