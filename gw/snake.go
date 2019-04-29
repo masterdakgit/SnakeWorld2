@@ -25,6 +25,8 @@ type snake struct {
 	humanControl bool
 	genOld       int
 	Age          int
+	viewRange    int
+	viewLen      int
 }
 
 type cell struct {
@@ -127,14 +129,7 @@ func (s *snake) step(w *World) {
 	}
 
 	if w.field[x][y] >= 1000 {
-		num := w.field[x][y] - 1000
-		if s.num == w.field[x][y] {
-			s.neuroBad(w)
-			return
-		}
-		if num < len(w.snake) {
-			w.snake[num].dieAid(w)
-		}
+		s.neuroBad(w)
 		return
 	}
 

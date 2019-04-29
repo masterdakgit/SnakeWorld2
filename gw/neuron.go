@@ -1,7 +1,6 @@
 package gw
 
 import (
-	"fmt"
 	"image/color"
 	"log"
 	"math"
@@ -74,15 +73,15 @@ func (s *snake) neuroSetIn(w *World) {
 	y1 := y + viewRange
 
 	dOut := float64(0.01)
-	str := "  "
+	//str := "  "
 
 	for y := y0; y <= y1; y++ {
 		for x := x0; x <= x1; x++ {
 			if y < 0 || y >= w.lenY || x < 0 || x >= w.lenX {
 				dOut = -0.9 //Выход за край карты
-				str = "##"
+				//str = "##"
 			} else {
-				dOut, str = s.dataToOut(w, w.field[x][y])
+				dOut, _ = s.dataToOut(w, w.field[x][y])
 			}
 
 			dx := x - x0
@@ -90,14 +89,15 @@ func (s *snake) neuroSetIn(w *World) {
 
 			n := dx*viewLen + dy
 			s.neuroNet.Layers[0][n].Out = float64(dOut)
-
-			if n == 0 {
-				fmt.Println()
-			}
-			if dx%w.lenX == 0 {
-				fmt.Println()
-			}
-			fmt.Print(str)
+			/*
+				if n == 0 {
+					fmt.Println()
+				}
+				if dx%w.lenX == 0 {
+					fmt.Println()
+				}
+				fmt.Print(str)
+			*/
 		}
 	}
 }
