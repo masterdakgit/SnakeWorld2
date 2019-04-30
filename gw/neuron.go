@@ -3,6 +3,7 @@ package gw
 import (
 	"log"
 	"math"
+	"math/rand"
 	"neuron/nr"
 )
 
@@ -15,12 +16,14 @@ const (
 
 type memory struct {
 	data [lenMomory][]nr.Neuron
+	way  [lenMomory]int
 	pos  int
 }
 
 func (s *snake) neuroNetCreate() {
 	s.diver = 8
 	s.nCorrect = 0.2
+	s.test = 1 + rand.Intn(2)
 
 	neuroLayer := make([]int, 2)
 	neuroLayer[0] = viewLen * viewLen
@@ -56,7 +59,6 @@ func (s *snake) relative(w *World, num int) bool {
 		dB = 255 - dB
 	}
 
-	//fmt.Println(num, dR, dG, dB)
 	if dR <= 20 && dG <= 20 && dB <= 20 {
 		return true
 	}
@@ -100,35 +102,83 @@ func (s *snake) neuroSetIn(w *World) {
 			*/
 		}
 	}
+
 	s.memory.data[s.memory.pos] = s.neuroNet.Layers[0]
 
-	s.memory.pos = (s.memory.pos + 1) % lenMomory
 }
 
 func (s *snake) neuroWay(w *World) int {
 	s.neuroSetIn(w)
 	s.neuroNet.Calc()
-	return s.neuroNet.MaxOutputNumber(0)
+	mo := s.neuroNet.MaxOutputNumber(0)
+	s.memory.way[s.memory.pos] = mo
+	s.memory.pos = (s.memory.pos + 1) % lenMomory
+	return mo
 }
 
 func (s *snake) neuroCorrect(w *World, a float64) {
-	s.neuroNet.NCorrect = s.nCorrect
-
 	ans := make([]float64, dirWay)
+	n := float64(lenMomory)
+	way := 0
 
-	for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
-		p := pos % lenMomory
-		s.neuroNet.Layers[0] = s.memory.data[p]
-		s.neuroNet.Calc()
-		way := s.neuroNet.MaxOutputNumber(0)
-		for n := 0; n < dirWay; n++ {
-			ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
+	switch s.test {
+	case 0:
+		log.Fatal("s.test: Не установлено значение.")
+	case 1:
+		for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
+			p := pos % lenMomory
+
+			s.neuroNet.NCorrect = 0.1 + 0.4*n/lenMomory
+			n--
+			s.neuroNet.Layers[0] = s.memory.data[p]
+			s.neuroNet.Calc()
+
+			for n := 0; n < dirWay; n++ {
+				ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
+			}
+
+			way = s.neuroNet.MaxOutputNumber(0)
+
+			ans[way] = a
+
+			s.neuroNet.SetAnswers(ans)
+			s.neuroNet.Correct()
 		}
-		ans[way] = a
+	case 2:
+		for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
+			p := pos % lenMomory
 
-		s.neuroNet.SetAnswers(ans)
-		s.neuroNet.Correct()
+			s.neuroNet.NCorrect = 0.1 + 0.4*n/lenMomory
+			n--
+			s.neuroNet.Layers[0] = s.memory.data[p]
+			s.neuroNet.Calc()
+
+			for n := 0; n < dirWay; n++ {
+				ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
+			}
+
+			way = s.neuroNet.MaxOutputNumber(0)
+
+			ans[way] = a
+
+			s.neuroNet.SetAnswers(ans)
+			s.neuroNet.Correct()
+		}
 	}
+}
+
+func (w *World) bestTest() (t1, t2 int) {
+	for n := range w.snake {
+		if !w.snake[n].dead {
+			switch w.snake[n].test {
+			case 1:
+				t1++
+			case 2:
+				t2++
+			}
+		}
+	}
+	return
 }
 
 func (s *snake) dataToOut(w *World, data int) (d float64, str string) {

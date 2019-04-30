@@ -21,7 +21,7 @@ var (
 	colorHead      = color.RGBA{0, 0, 0, 255}
 	colorWall      = color.RGBA{170, 170, 170, 255}
 	colorEat       = color.RGBA{0, 170, 0, 255}
-	colorAid       = color.RGBA{255, 0, 0, 255}
+	colorKako      = color.RGBA{96, 64, 0, 255}
 )
 
 func setBar(x, y int, c color.RGBA, i *image.NRGBA) {
@@ -62,8 +62,8 @@ func (w *World) imgChange() {
 			case 1:
 				setBar(x, y, colorEat, w.image)
 			default:
-				if w.field[x][y] <= 1+rAid*energeCell {
-					setBar(x, y, colorAid, w.image)
+				if w.field[x][y] <= 1+rKako*energeCell {
+					setBar(x, y, colorKako, w.image)
 				}
 			}
 		}
@@ -73,6 +73,12 @@ func (w *World) imgChange() {
 
 	w.infoPanelClear()
 	addLabel(w.image, 10, bar*w.lenY+20, "Speed: "+strconv.Itoa(10-int(math.Log2(w.Speed))))
+
+	t1, t2 := w.bestTest()
+
+	addLabel(w.image, 10, bar*w.lenY+40, "Test 1: "+strconv.Itoa(t1))
+	addLabel(w.image, 10, bar*w.lenY+60, "Test 2: "+strconv.Itoa(t2))
+
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+20, "Generation: "+strconv.Itoa(int(w.Gen)))
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+40, "Balance: "+strconv.Itoa(int(w.balance)))
 	addLabel(w.image, bar*w.lenX/2, bar*w.lenY+60, "Age era: "+strconv.Itoa(w.Gen-w.ageEra))

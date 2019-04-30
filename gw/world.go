@@ -13,7 +13,7 @@ var (
 	mutex2 sync.Mutex
 	wg     sync.WaitGroup
 	Core   = 1
-	rAid   = 2
+	rKako  = 20
 )
 
 type World struct {
@@ -244,7 +244,7 @@ func (w *World) calcCell() int {
 			if w.field[x][y] >= 1 {
 				result++
 			}
-			if w.field[x][y] > 1 && w.field[x][y] <= 1+rAid*energeCell {
+			if w.field[x][y] > 1 && w.field[x][y] <= 1+rKako*energeCell {
 				w.removeAid(x, y)
 			}
 		}
