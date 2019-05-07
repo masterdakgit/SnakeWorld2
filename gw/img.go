@@ -21,7 +21,6 @@ var (
 	colorHead      = color.RGBA{0, 0, 0, 255}
 	colorWall      = color.RGBA{170, 170, 170, 255}
 	colorEat       = color.RGBA{0, 170, 0, 255}
-	colorKako      = color.RGBA{96, 64, 0, 255}
 )
 
 func setBar(x, y int, c color.RGBA, i *image.NRGBA) {
@@ -61,10 +60,6 @@ func (w *World) imgChange() {
 				setBar(x, y, colorWall, w.image)
 			case 1:
 				setBar(x, y, colorEat, w.image)
-			default:
-				if w.field[x][y] <= 1+rKako*energeCell {
-					setBar(x, y, colorKako, w.image)
-				}
 			}
 		}
 	}

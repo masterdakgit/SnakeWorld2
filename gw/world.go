@@ -14,6 +14,7 @@ var (
 	wg     sync.WaitGroup
 	Core   = 1
 	rKako  = 20
+	nTest  = 0
 )
 
 type World struct {
@@ -63,21 +64,10 @@ func (w *World) setWall() {
 	for x := range w.field {
 		w.field[x][0] = -1
 		w.field[x][w.lenY-1] = -1
-		/*		if x % 40 == 20{
-					w.field[x][0] = 0
-					w.field[x][w.lenY-1] = 0
-
-				}
-		*/
 	}
 	for y := range w.field[0] {
 		w.field[0][y] = -1
 		w.field[w.lenX-1][y] = -1
-		/*		if y % 30 == 15{
-					w.field[0][y] = 0
-					w.field[w.lenX-1][y] = 0
-				}
-		*/
 	}
 }
 
@@ -151,7 +141,7 @@ func (w *World) Generation() {
 
 	l, _ := w.liveDeadSnakes()
 	if l < w.minSnake {
-		fmt.Println("Добавляем новую змейку, поколение:", w.Gen)
+		fmt.Println("Реинкорнация в поколение:", w.Gen)
 		w.ageEra = w.Gen
 		for n := range w.snake {
 			if w.snake[n].dead {

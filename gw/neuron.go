@@ -3,7 +3,6 @@ package gw
 import (
 	"log"
 	"math"
-	"math/rand"
 	"neuron/nr"
 )
 
@@ -23,7 +22,8 @@ type memory struct {
 func (s *snake) neuroNetCreate() {
 	s.diver = 8
 	s.nCorrect = 0.2
-	s.test = 1 + rand.Intn(2)
+	s.test = 1 + nTest%2
+	nTest++
 
 	neuroLayer := make([]int, 2)
 	neuroLayer[0] = viewLen * viewLen
@@ -80,7 +80,7 @@ func (s *snake) neuroSetIn(w *World) {
 	for y := y0; y <= y1; y++ {
 		for x := x0; x <= x1; x++ {
 			if y < 0 || y >= w.lenY || x < 0 || x >= w.lenX {
-				dOut = 0.01 //Выход за край карты
+				dOut = -0.5 //Выход за край карты
 				//str = "##"
 			} else {
 				dOut, _ = s.dataToOut(w, w.field[x][y])
@@ -103,7 +103,7 @@ func (s *snake) neuroSetIn(w *World) {
 		}
 	}
 
-	s.memory.data[s.memory.pos] = s.neuroNet.Layers[0]
+	copy(s.memory.data[s.memory.pos], s.neuroNet.Layers[0])
 
 }
 
@@ -125,10 +125,11 @@ func (s *snake) neuroCorrect(w *World, a float64) {
 	case 0:
 		log.Fatal("s.test: Не установлено значение.")
 	case 1:
-		for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
+
+		for pos := s.memory.pos + lenMomory - 1; pos >= s.memory.pos; pos-- {
 			p := pos % lenMomory
 
-			s.neuroNet.NCorrect = 0.1 + 0.4*n/lenMomory
+			s.neuroNet.NCorrect = 0.05 + 0.25*n/lenMomory
 			n--
 			s.neuroNet.Layers[0] = s.memory.data[p]
 			s.neuroNet.Calc()
@@ -137,7 +138,7 @@ func (s *snake) neuroCorrect(w *World, a float64) {
 				ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 			}
 
-			way = s.neuroNet.MaxOutputNumber(0)
+			way = s.memory.way[p]
 
 			ans[way] = a
 
@@ -145,10 +146,10 @@ func (s *snake) neuroCorrect(w *World, a float64) {
 			s.neuroNet.Correct()
 		}
 	case 2:
-		for pos := s.memory.pos + lenMomory; pos > s.memory.pos; pos-- {
+		for pos := s.memory.pos + lenMomory - 1; pos >= s.memory.pos; pos-- {
 			p := pos % lenMomory
 
-			s.neuroNet.NCorrect = 0.1 + 0.4*n/lenMomory
+			s.neuroNet.NCorrect = 0.2
 			n--
 			s.neuroNet.Layers[0] = s.memory.data[p]
 			s.neuroNet.Calc()
@@ -157,7 +158,7 @@ func (s *snake) neuroCorrect(w *World, a float64) {
 				ans[n] = s.neuroNet.Layers[len(s.neuroNet.Layers)-1][n].Out
 			}
 
-			way = s.neuroNet.MaxOutputNumber(0)
+			way = s.memory.way[p]
 
 			ans[way] = a
 
